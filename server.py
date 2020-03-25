@@ -10,9 +10,9 @@ class SimpleWebSocket(tornado.websocket.WebSocketHandler):
 	connections = set()
 	def open(self): self.connections.add(self)
 	def on_message(self, message):
+		message = json.loads(message)
 		if message['message']:
-			message = json.loads(message)
-			if message['message'][0] == '!' and not re.search('[a-cA-Ce-zE-Z]', l): # Starting a message with an exclamation point and doesn't contain any characters but basic math, integers, and a d triggers the dice parser
+			if message['message'][0] == '!' and not re.search('[a-cA-Ce-zE-Z]', message['message']): # Starting a message with an exclamation point and doesn't contain any characters but basic math, integers, and a d triggers the dice parser
 				m = message['message'].lstrip('!').replace(' ', '') # Remove the exclamation and any spaces for formatting purposes
 				message['message'] = '<p>Dice Parcer</p>\n' # This starts the newly formatted message to let users know that the following information is from the dice parser
 				rollRequests = re.findall(r"[0-9]*d[0-9]*", m) # This searches the string for any dice rolls and stores them in a list: denoted by a #d# or just d# (e.g. 1d20 (d20) to roll a single 20 sided die or 5d10 to roll five ten sided dice
@@ -46,4 +46,5 @@ def make_app(): return tornado.web.Application([ (r"/", MainHandler), (r"/websoc
 if __name__ == '__main__':
 	app = make_app()
 	app.listen(PORT)
+	print("Starting server...")
 	tornado.ioloop.IOLoop.current().start()
