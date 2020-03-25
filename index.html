@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta charset="UTF-8">
+		<title>Simple Chat</title>
+
+		<script>
+			var ws = new WebSocket("ws://localhost:1234/websocket");
+			var username = prompt("What is your name?");
+
+			function sendMessage() {
+				var messageInput = document.getElementById("message");
+				var message = messageInput.value;
+				var payload = {
+					"message": message,
+					"user": username
+				}
+				// Make request to the websocket
+				ws.send(JSON.stringify(payload));
+				// Clear the input box
+				messageInput.value = "";
+				return false;
+			};
+
+			ws.onmessage = function(evt){
+				var messageDict = JSON.parse(evt.data);
+				// Create a div element "user: message"
+				var messageBox = document.createElement("div");
+				messageBox.innerHTML = messageDict.user + ": " + messageDict.message;
+				document.getElementById("messages").appendChild(messageBox);
+			};
+		</script>
+	</head>
+
+	<body>
+		<div id="messages" stile="width: 100%; padding: 20px; overflow-y: scroll;">
+		</div>
+		<div style="padding-top: 20px;">
+			<form onsubmit="return sendMessage()">
+				<input id="message" type="text" style="width: 70%;"><button style="width: 25%;">Send</button>
+			</form>
+		</div>
+	</body>
+</html>
